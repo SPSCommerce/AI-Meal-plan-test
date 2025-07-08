@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Family Meal Planner</title>
+    <!-- Added for debugging -->
+    <script>
+        window.onload = function() {
+            console.log("Page loaded successfully");
+            document.body.insertAdjacentHTML('afterbegin', '<div style="background: red; color: white; padding: 20px;">Page loaded - if you see this, basic HTML rendering is working</div>');
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .header p {
+            margin: 10px 0 0;
+            opacity: 0.9;
+        }
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+        }
+        .generate-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 20px;
+        }
+        .generate-btn:hover {
+            transform: translateY(-2px);
+        }
+        .results {
+            display: none;
+        }
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+        .card h3 {
+            margin: 0 0 15px;
+            color: #667eea;
+            font-size: 1.3em;
+        }
+        .budget-card {
+            border-left: 5px solid #28a745;
+        }
+        .budget-card.over-budget {
+            border-left-color: #dc3545;
+        }
+        .nutrition-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        .nutrition-item {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .nutrition-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .meal-plan {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+        .day-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+        .day-content {
+            padding: 20px;
+        }
+        .meal {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .meal-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .meal-name {
+            font-weight: 600;
+            color: #333;
+        }
+        .meal-cost {
+            color: #28a745;
+            font-weight: 600;
+        }
+        .shopping-list {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            margin-top: 30px;
+        }
+        .shopping-category {
+            margin-bottom: 20px;
+        }
+        .shopping-category h4 {
+            color: #667eea;
+            border-bottom: 2px solid #e1e5e9;
+            padding-bottom: 5px;
+        }
+        .shopping-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🍽️ AI Family Meal Planner</h1>
+        <p>Nutritionally balanced, kid-friendly meals within your budget</p>
+    </div>
+
+    <div class="form-container">
+        <form id="mealPlanForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="days">Planning Period (days):</label>
+                    <select id="days" name="days">
+                        <option value="3">3 days</option>
+                        <option value="5">5 days</option>
+                        <option value="7" selected>1 week</option>
+                        <option value="14">2 weeks</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="family_size">Family Size:</label>
+                    <select id="family_size" name="family_size">
+                        <option value="2">2 people</option>
+                        <option value="3">3 people</option>
+                        <option value="4" selected>4 people</option>
+                        <option value="5">5 people</option>
+                        <option value="6">6 people</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="calorie_limit">Daily Calorie Limit:</label>
+                    <input type="number" id="calorie_limit" name="calorie_limit" value="2000" min="1000" max="4000" step="100">
+                </div>
+                <div class="form-group">
+                    <label for="daily_budget">Daily Budget (optional):</label>
+                    <input type="number" id="daily_budget" name="daily_budget" placeholder="e.g., 25.00" min="5" max="200" step="0.50">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Dietary Preferences:</label>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="vegetarian" name="dietary_restrictions" value="vegetarian">
+                    <label for="vegetarian">Vegetarian</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="gluten_free" name="dietary_restrictions" value="gluten-free">
+                    <label for="gluten_free">Gluten-Free</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="kid_friendly_only" name="kid_friendly_only" checked>
+                    <label for="kid_friendly_only">Kid-Friendly Only</label>
+                </div>
+            </div>
+
+            <button type="submit" class="generate-btn">🎯 Generate Meal Plan</button>
+        </form>
+    </div>
+
+    <div id="loading" class="loading" style="display: none;">
+        <h3>🍳 Cooking up your perfect meal plan...</h3>
+        <p>This may take a few moments</p>
+    </div>
+
+    <div id="error" class="error" style="display: none;"></div>
+
+    <div id="results" class="results">
+        <div class="summary-cards">
+            <div class="card">
+                <h3>📊 Nutrition Summary</h3>
+                <div id="nutritionSummary" class="nutrition-grid"></div>
+            </div>
+            <div class="card budget-card" id="budgetCard">
+                <h3>💰 Budget Analysis</h3>
+                <div id="budgetSummary"></div>
+            </div>
+        </div>
+
+        <div id="mealPlans"></div>
+
+        <div class="shopping-list">
+            <h3>🛒 Shopping List</h3>
+            <div id="shoppingList"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('mealPlanForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = {
+                days: parseInt(formData.get('days')),
+                family_size: parseInt(formData.get('family_size')),
+                calorie_limit: parseFloat(formData.get('calorie_limit')),
+                daily_budget: formData.get('daily_budget') ? parseFloat(formData.get('daily_budget')) : null,
+                kid_friendly_only: formData.get('kid_friendly_only') === 'on',
+                dietary_restrictions: formData.getAll('dietary_restrictions')
+            };
+
+            showLoading();
+            hideError();
+
+            try {
+                const response = await fetch('/generate_meal_plan', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayResults(result);
+                } else {
+                    showError(result.error || 'An error occurred');
+                }
+            } catch (error) {
+                showError('Failed to generate meal plan: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        });
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('error').style.display = 'none';
+        }
+
+        function displayResults(result) {
+            // Display nutrition summary
+            const nutritionSummary = document.getElementById('nutritionSummary');
+            nutritionSummary.innerHTML = `
+                <div class="nutrition-item">
+                    <div class="nutrition-value">${Math.round(result.nutrition_summary.avg_daily_calories)}</div>
+                    <div>Calories/day</div>
+                </div>
+                <div class="nutrition-item">
+                    <div class="nutrition-value">${Math.round(result.nutrition_summary.avg_daily_protein)}g</div>
+                    <div>Protein/day</div>
+                </div>
+                <div class="nutrition-item">
+                    <div class="nutrition-value">${Math.round(result.nutrition_summary.avg_daily_carbs)}g</div>
+                    <div>Carbs/day</div>
+                </div>
+                <div class="nutrition-item">
+                    <div class="nutrition-value">${Math.round(result.nutrition_summary.avg_daily_fat)}g</div>
+                    <div>Fat/day</div>
+                </div>
+                <div class="nutrition-item">
+                    <div class="nutrition-value">$${result.nutrition_summary.avg_daily_cost?.toFixed(2) || '0.00'}</div>
+                    <div>Cost/day</div>
+                </div>
+                <div class="nutrition-item">
+                    <div class="nutrition-value">$${result.nutrition_summary.total_weekly_cost?.toFixed(2) || '0.00'}</div>
+                    <div>Total Cost</div>
+                </div>
+            `;
+
+            // Display budget analysis
+            const budgetCard = document.getElementById('budgetCard');
+            const budgetSummary = document.getElementById('budgetSummary');
+            
+            if (result.budget_analysis) {
+                const isUnderBudget = result.budget_analysis.under_budget;
+                budgetCard.className = isUnderBudget ? 'card budget-card' : 'card budget-card over-budget';
+                
+                budgetSummary.innerHTML = `
+                    <p><strong>Daily Budget:</strong> $${result.budget_analysis.daily_budget.toFixed(2)}</p>
+                    <p><strong>Total Budget:</strong> $${result.budget_analysis.total_budget.toFixed(2)}</p>
+                    <p><strong>Actual Cost:</strong> $${result.budget_analysis.total_cost.toFixed(2)}</p>
+                    <p><strong>Status:</strong> <span style="color: ${isUnderBudget ? '#28a745' : '#dc3545'}">
+                        ${isUnderBudget ? '✅ Under Budget' : '⚠️ Over Budget'}
+                    </span></p>
+                    <p><strong>${isUnderBudget ? 'Savings' : 'Overage'}:</strong> 
+                        <span style="color: ${isUnderBudget ? '#28a745' : '#dc3545'}">
+                            $${Math.abs(result.budget_analysis.savings).toFixed(2)}
+                        </span>
+                    </p>
+                `;
+            } else {
+                budgetSummary.innerHTML = '<p>No budget specified</p>';
+            }
+
+            // Display meal plans
+            const mealPlans = document.getElementById('mealPlans');
+            mealPlans.innerHTML = result.meal_plans.map(day => `
+                <div class="meal-plan">
+                    <div class="day-header">
+                        ${new Date(day.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                        - ${Math.round(day.daily_nutrition.calories)} calories - $${day.daily_cost.toFixed(2)}
+                    </div>
+                    <div class="day-content">
+                        ${Object.entries(day.meals).map(([mealType, meal]) => {
+                            if (mealType === 'snacks' && Array.isArray(meal)) {
+                                return meal.map(snack => formatMeal(snack)).join('');
+                            } else if (meal) {
+                                return formatMeal(meal);
+                            }
+                            return '';
+                        }).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            // Display shopping list
+            const shoppingList = document.getElementById('shoppingList');
+            shoppingList.innerHTML = Object.entries(result.shopping_list).map(([category, items]) => `
+                <div class="shopping-category">
+                    <h4>${category}</h4>
+                    ${Object.entries(items).map(([item, data]) => `
+                        <div class="shopping-item">
+                            <span>${item}: ${data.amount % 1 === 0 ? Math.round(data.amount) : data.amount.toFixed(1)}</span>
+                            <span class="meal-cost">$${data.cost.toFixed(2)}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `).join('');
+
+            document.getElementById('results').style.display = 'block';
+        }
+
+        function formatMeal(meal) {
+            return `
+                <div class="meal">
+                    <div class="meal-header">
+                        <span class="meal-name">${meal.name}</span>
+                        <span class="meal-cost">$${meal.cost.toFixed(2)}</span>
+                    </div>
+                    <div>
+                        ${Math.round(meal.nutrition.calories)} calories | 
+                        ${Math.round(meal.nutrition.protein)}g protein | 
+                        ${Math.round(meal.nutrition.carbohydrates)}g carbs | 
+                        ${Math.round(meal.nutrition.fat)}g fat
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

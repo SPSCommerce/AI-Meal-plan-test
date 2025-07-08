@@ -1,0 +1,6 @@
+{
+    "python.pythonPath": "${workspaceFolder}/meal_planner_env/Scripts/python.exe",
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}"
+    ]
+}

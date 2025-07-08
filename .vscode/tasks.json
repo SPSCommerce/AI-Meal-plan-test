@@ -1,0 +1,27 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Run Meal Planner App",
+			"type": "shell",
+			"command": "\"c:/Users/awatersdegarcia/OneDrive - SPS Commerce/Desktop/Trainings/AI-Meal plan test/meal_planner_env/Scripts/python.exe\"",
+			"args": [
+				"app.py"
+			],
+			"group": "build",
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Run Test Flask App",
+			"type": "shell",
+			"command": "\"c:/Users/awatersdegarcia/OneDrive - SPS Commerce/Desktop/Trainings/AI-Meal plan test/meal_planner_env/Scripts/python.exe\"",
+			"args": [
+				"test_app.py"
+			],
+			"group": "build",
+			"isBackground": true,
+			"problemMatcher": []
+		}
+	]
+}
